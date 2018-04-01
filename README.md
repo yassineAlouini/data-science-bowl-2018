@@ -7,6 +7,7 @@ It is based on the following [Kaggle challenge](https://www.kaggle.com/c/data-sc
 
 ## Project structure
 
+
 TODO: Add structure
 
 ## Install the project
@@ -18,7 +19,7 @@ For this, run the following command:
 ## Get the data
 
 
-Once you have installed the project dependencies, you will have access to the Kaggle official CLI. Run `keras --help` to confirm this.
+Once you have installed the project dependencies, you will have access to the Kaggle official CLI. Run `kaggle --help` to confirm this.
 
 
 To get the data, run:
