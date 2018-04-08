@@ -1,7 +1,11 @@
-import cv2
-import numpy as np
 import glob
+import os
+
 import matplotlib.pylab as plt
+import numpy as np
+
+import cv2
+from dsb.conf import IMG_CHANNELS, IMG_HEIGHT, IMG_WIDTH
 
 
 def combine_masks(masks_paths):
@@ -14,10 +18,15 @@ def combine_masks(masks_paths):
     return np.maximum.reduce(masks)
 
 
-def resize_image(img):
-    """ Resize an image
+# TODO: Check how to do it directly with Keras:
+# https://keras.io/preprocessing/image/
+
+def preprocess_image(img):
+    """ Preprocess the image.
     """
-    pass
+    img = img[:, :, :IMG_CHANNELS]
+    img = np.resize(img, (IMG_HEIGHT, IMG_WIDTH))
+    return img
 
 
 def plot_one_image(img_path):
@@ -25,7 +34,7 @@ def plot_one_image(img_path):
     """
     masks_folder = os.path.abspath(os.path.join(img_path, os.pardir)).replace('images', 'masks')
     masks_paths = glob.glob(os.path.join(masks_folder, '*.png'))
-    img_name = ntpath.basename(os.path.splitext(img_path)[0])
+    img_name = os.path.basename(os.path.splitext(img_path)[0])
     fig, axes = plt.subplots(1, 2, figsize=(8, 8))
     img = cv2.imread(img_path)
     axes[0].imshow(img)

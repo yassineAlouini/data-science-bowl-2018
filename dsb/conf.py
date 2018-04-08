@@ -1,4 +1,5 @@
 import os
+
 import pandas as pd
 
 IMAGES_PATH = 'data/**/images/*.png'
@@ -8,3 +9,8 @@ ALL_IMAGE_IDS = set(next(os.walk('data'))[1])
 train_labels_df = pd.read_csv(TRAIN_LABELS_PATH)
 TRAIN_IMAGE_IDS = set(train_labels_df.ImageId.unique())
 TEST_IMAGE_IDS = ALL_IMAGE_IDS - TRAIN_IMAGE_IDS
+
+
+IMG_CHANNELS = 3
+IMG_WIDTH = 256
+IMG_HEIGHT = 256
