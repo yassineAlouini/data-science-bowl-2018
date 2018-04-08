@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 
 IMAGES_PATH = 'data/**/images/*.png'
 TRAIN_LABELS_PATH = 'data/stage1_train_labels.csv'

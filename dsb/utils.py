@@ -14,8 +14,14 @@ def combine_masks(masks_paths):
     return np.maximum.reduce(masks)
 
 
+def resize_image(img):
+    """ Resize an image
+    """
+    pass
+
+
 def plot_one_image(img_path):
-    """Plot one image with its corrsponding masks.
+    """Plot one image with its corresponding masks.
     """
     masks_folder = os.path.abspath(os.path.join(img_path, os.pardir)).replace('images', 'masks')
     masks_paths = glob.glob(os.path.join(masks_folder, '*.png'))
@@ -29,3 +35,4 @@ def plot_one_image(img_path):
     fig.suptitle(img_name)
     axes[1].set_title('Mask')
     fig.tight_layout(rect=[0, 0.03, 1, 0.97])
+    return fig

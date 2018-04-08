@@ -14,7 +14,12 @@ TODO: Add structure
 
 For this, run the following command:
 
+`conda install --file environement.txt`
 
+
+Then, run:
+
+`python setup.py develop`
 
 ## Get the data
 
