@@ -1,5 +1,6 @@
-# "Special" IoU metric implementation
-# TODO: Add documentation and link to definition
+# Competition metric implementation
+# Check this Wikipedia page for more details about Jacard index:
+# https://en.wikipedia.org/wiki/Jaccard_index
 
 
 THRESHOLDS = range(0.5, 1, 0.05)
@@ -8,6 +9,7 @@ THRESHOLDS = range(0.5, 1, 0.05)
 def _custom_precision(y_pred, y_true, positive_class=1):
     """ A custom precision (i.e. different to the common one) metric for a two
     classes (positive and negative) classification.
+    Notice that this custom precision is exactly the Jaccard similarity coefficient.
     """
     true_positive = (y_pred == y_true) & (y_pred == positive_class)
     false_positive = (y_pred != y_true) & (y_pred == positive_class)
@@ -15,11 +17,22 @@ def _custom_precision(y_pred, y_true, positive_class=1):
     return true_positive / (true_positive + false_positive + false_negative)
 
 
+def _iou(img_1, img_2):
+    """ IoU (intersection over union also called Jacard index) computation for two
+    images.
+    """
+    # TODO: Finish implementing this
+    intersection = 0.0
+    union = img_1 + img_2 - intersection
+    return intersection / union
+
+
 def _labeling(pred_mask, true_mask, threshold):
     """ Label the predicted mask in comparaison
     of the true one using the IoU (intersection over union) metric.
     """
-    pass
+    computed_iou = _iou(pred_mask, true_mask)
+    return computed_iou > threshold
 
 
 def dsb_metric(y_pred, y_true, thresolds=THRESHOLDS):
