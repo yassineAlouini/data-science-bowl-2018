@@ -26,21 +26,22 @@ def _iou(img_1, img_2):
     return intersection / union
 
 
-def _labeling(pred_mask, true_mask, threshold):
+def _labeling(pred_mask, true_mask, thresholds):
     """ Label the predicted mask in comparaison
-    of the true one using the IoU (intersection over union) metric.
+    of the true one using the IoU (intersection over union) metric and the thresolds:
+    1 if IoU > threshold, 0 otherwise.
     """
     computed_iou = _iou(pred_mask, true_mask)
-    return computed_iou > threshold
+    return (computed_iou > thresholds).astype(int)
 
 
-def dsb_metric(y_pred, y_true, thresolds=THRESHOLDS):
+def dsb_metric(pred_masks, true_masks, thresolds=THRESHOLDS):
     """ A specific IoU (intersection over union) for the dsb competition
     """
-    for threshold in thresholds:
-        pass
+    for pred_mask, true_mask in zip(pred_masks, true_masks):
+        _labeling(pred_mask, true_mask, thresolds)
+    return 1
 
 
-# TODO: Add test for the metric
 def _test_dsb_iou():
     assert True
