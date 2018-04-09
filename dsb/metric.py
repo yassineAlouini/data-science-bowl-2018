@@ -21,9 +21,8 @@ def _iou(img_1, img_2):
     """ IoU (intersection over union also called Jacard index) computation for two
     images.
     """
-    # TODO: Finish implementing this
-    intersection = 0.0
-    union = img_1 + img_2 - intersection
+    intersection = ((img_1 & img_2) > 0).sum()
+    union = ((img_2 | img_2) > 0).sum()
     return intersection / union
 
 
