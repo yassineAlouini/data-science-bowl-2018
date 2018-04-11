@@ -6,20 +6,21 @@
 THRESHOLDS = range(0.5, 1, 0.05)
 
 
-def _custom_precision(y_pred, y_true, positive_class=1):
+def _custom_precision(labels, total_true, total_pred, positive_class=1):
     """ A custom precision (i.e. different to the common one) metric for a two
     classes (positive and negative) classification.
     Notice that this custom precision is exactly the Jaccard similarity coefficient.
     """
-    true_positive = (y_pred == y_true) & (y_pred == positive_class)
-    false_positive = (y_pred != y_true) & (y_pred == positive_class)
-    false_negative = (y_pred != y_true) & (y_pred == 1 - positive_class)
+    true_positive = (labels == positive_class).sum()
+    false_positive = total_pred - true_positive
+    false_negative = total_true - true_positive
     return true_positive / (true_positive + false_positive + false_negative)
 
 
 def _iou(img_1, img_2):
     """ IoU (intersection over union also called Jacard index) computation for two
-    images.
+    images. Notice that the pixels are transfored into binary values: either bigger than 0 (image) or not
+    (background).
     """
     intersection = ((img_1 & img_2) > 0).sum()
     union = ((img_2 | img_2) > 0).sum()
@@ -38,10 +39,20 @@ def _labeling(pred_mask, true_mask, thresholds):
 def dsb_metric(pred_masks, true_masks, thresolds=THRESHOLDS):
     """ A specific IoU (intersection over union) for the dsb competition
     """
+    total_true_masks = len(pred_masks)
+    total_pred_masks = len(true_masks)
+    mean_jacard_sim_coeff = 0.0
     for pred_mask, true_mask in zip(pred_masks, true_masks):
-        _labeling(pred_mask, true_mask, thresolds)
-    return 1
+        labels = _labeling(pred_mask, true_mask, thresolds)
+        jacard_sim_coeff = _custom_precision(labels, total_true_masks, total_pred_masks).mean()
+        mean_jacard_sim_coeff += jacard_sim_coeff
+    return mean_jacard_sim_coeff / total_true_masks
+
+# TODO: Add function that finds true and predicted masks.
 
 
-def _test_dsb_iou():
+def _test_dsb_metric():
+    """ Check that the metric works as expected.
+    """
+    # TODO: Finish this test.
     assert True
