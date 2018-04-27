@@ -1,9 +1,15 @@
-# Competition metric implementation
+# Competition's metric implementation
 # Check this Wikipedia page for more details about Jacard index:
 # https://en.wikipedia.org/wiki/Jaccard_index
 
+import glob
 
-THRESHOLDS = range(0.5, 1, 0.05)
+import numpy as np
+
+from dsb.conf import TEST_MASK_PATH
+from dsb.utils import combine_masks
+
+THRESHOLDS = np.linspace(0.5, 1, 0.05)
 
 
 def _custom_precision(labels, total_true, total_pred, positive_class=1):
@@ -48,11 +54,17 @@ def dsb_metric(pred_masks, true_masks, thresolds=THRESHOLDS):
         mean_jacard_sim_coeff += jacard_sim_coeff
     return mean_jacard_sim_coeff / total_true_masks
 
-# TODO: Add function that finds true and predicted masks.
+# TODO: Add function that finds true and predicted masks.
 
 
 def _test_dsb_metric():
-    """ Check that the metric works as expected.
+    """ Check that the metric works as expected: load an image and a prediction
+    then compute the score.
     """
-    # TODO: Finish this test.
-    assert True
+    masks = combine_masks(glob.glob(TEST_MASK_PATH))
+    print(np.unique(masks))
+    print(masks.shape)
+
+
+if __name__ == '__main__':
+    _test_dsb_metric()
