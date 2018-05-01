@@ -6,10 +6,14 @@ import glob
 
 import numpy as np
 
+import cv2
 from dsb.conf import TEST_MASK_PATH
-from dsb.utils import combine_masks
 
-THRESHOLDS = np.linspace(0.5, 1, 0.05)
+START = 0.5
+END = 0.95
+STEP = 0.05
+N_STEPS = int((END - START) / STEP) + 2
+THRESHOLDS = np.linspace(START, END, N_STEPS)
 
 
 def _custom_precision(labels, total_true, total_pred, positive_class=1):
@@ -18,6 +22,7 @@ def _custom_precision(labels, total_true, total_pred, positive_class=1):
     Notice that this custom precision is exactly the Jaccard similarity coefficient.
     """
     true_positive = (labels == positive_class).sum()
+    print(true_positive)
     false_positive = total_pred - true_positive
     false_negative = total_true - true_positive
     return true_positive / (true_positive + false_positive + false_negative)
@@ -26,7 +31,7 @@ def _custom_precision(labels, total_true, total_pred, positive_class=1):
 def _iou(img_1, img_2):
     """ IoU (intersection over union also called Jacard index) computation for two
     images. Notice that the pixels are transfored into binary values: either bigger than 0 (image) or not
-    (background).
+    (background). The 0 value is the code for black color.
     """
     intersection = ((img_1 & img_2) > 0).sum()
     union = ((img_2 | img_2) > 0).sum()
@@ -48,22 +53,25 @@ def dsb_metric(pred_masks, true_masks, thresolds=THRESHOLDS):
     total_true_masks = len(pred_masks)
     total_pred_masks = len(true_masks)
     mean_jacard_sim_coeff = 0.0
+    # TODO: Something is off, fix it!
     for pred_mask, true_mask in zip(pred_masks, true_masks):
+        # One label per threshold
         labels = _labeling(pred_mask, true_mask, thresolds)
         jacard_sim_coeff = _custom_precision(labels, total_true_masks, total_pred_masks).mean()
+        print(jacard_sim_coeff)
         mean_jacard_sim_coeff += jacard_sim_coeff
     return mean_jacard_sim_coeff / total_true_masks
 
-# TODO: Add function that finds true and predicted masks.
-
 
 def _test_dsb_metric():
-    """ Check that the metric works as expected: load an image and a prediction
-    then compute the score.
+    """ Check that the metric works as expected: load masks for an image and
+    then compute the score comparing these masks with themselves.
     """
-    masks = combine_masks(glob.glob(TEST_MASK_PATH))
-    print(np.unique(masks))
-    print(masks.shape)
+    masks = []
+    for mask_path in glob.iglob(TEST_MASK_PATH):
+        mask = cv2.imread(mask_path)
+        masks.append(mask)
+    print(dsb_metric(masks, masks))
 
 
 if __name__ == '__main__':
