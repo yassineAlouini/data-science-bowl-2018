@@ -5,64 +5,69 @@ https://github.com/jocicmarko/ultrasound-nerve-segmentation/blob/master/train.py
 from __future__ import print_function
 
 from keras import backend as K
-from keras.layers import (Conv2D, Conv2DTranspose, Input, MaxPooling2D,
+from keras.layers import (Conv2D, Conv2DTranspose, Input, Lambda, MaxPooling2D,
                           concatenate)
 from keras.models import Model
 
-from dsb.metric import dsb_metric
+from dsb.conf import IMG_CHANNELS, IMG_HEIGHT, IMG_WIDTH
+from dsb.metric import keras_dsb_metric
 
 K.set_image_data_format('channels_last')  # TF dimension ordering in this code
-
-# TODO: Improve the code for this model (rename some variables for instance)
 
 
 def build_u_net_model():
     """ Unet model
     """
+    # TODO: Refactor some of the conv_x layers into a function.
     inputs = Input((IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS))
-    s = Lambda(lambda x: x / 255)(inputs)
+    scale = Lambda(lambda x: x / 255)(inputs)
 
-    c1 = Conv2D(8, (3, 3), activation='relu', padding='same')(s)
-    c1 = Conv2D(8, (3, 3), activation='relu', padding='same')(c1)
-    p1 = MaxPooling2D((2, 2))(c1)
+    conv_1 = Conv2D(8, (3, 3), activation='relu', padding='same')(scale)
+    conv_1 = Conv2D(8, (3, 3), activation='relu', padding='same')(conv_1)
+    pooling_1 = MaxPooling2D((2, 2))(conv_1)
 
-    c2 = Conv2D(16, (3, 3), activation='relu', padding='same')(p1)
-    c2 = Conv2D(16, (3, 3), activation='relu', padding='same')(c2)
-    p2 = MaxPooling2D((2, 2))(c2)
+    conv_2 = Conv2D(16, (3, 3), activation='relu', padding='same')(pooling_1)
+    conv_2 = Conv2D(16, (3, 3), activation='relu', padding='same')(conv_2)
+    pooling_2 = MaxPooling2D((2, 2))(conv_2)
 
-    c3 = Conv2D(32, (3, 3), activation='relu', padding='same')(p2)
-    c3 = Conv2D(32, (3, 3), activation='relu', padding='same')(c3)
-    p3 = MaxPooling2D((2, 2))(c3)
+    conv_3 = Conv2D(32, (3, 3), activation='relu', padding='same')(pooling_2)
+    conv_3 = Conv2D(32, (3, 3), activation='relu', padding='same')(conv_3)
+    pooling_3 = MaxPooling2D((2, 2))(conv_3)
 
-    c4 = Conv2D(64, (3, 3), activation='relu', padding='same')(p3)
-    c4 = Conv2D(64, (3, 3), activation='relu', padding='same')(c4)
-    p4 = MaxPooling2D(pool_size=(2, 2))(c4)
+    conv_4 = Conv2D(64, (3, 3), activation='relu', padding='same')(pooling_3)
+    conv_4 = Conv2D(64, (3, 3), activation='relu', padding='same')(conv_4)
+    pooling_4 = MaxPooling2D(pool_size=(2, 2))(conv_4)
 
-    c5 = Conv2D(128, (3, 3), activation='relu', padding='same')(p4)
-    c5 = Conv2D(128, (3, 3), activation='relu', padding='same')(c5)
+    conv_5 = Conv2D(128, (3, 3), activation='relu', padding='same')(pooling_4)
+    conv_5 = Conv2D(128, (3, 3), activation='relu', padding='same')(conv_5)
 
-    u6 = Conv2DTranspose(64, (2, 2), strides=(2, 2), padding='same')(c5)
-    u6 = concatenate([u6, c4])
-    c6 = Conv2D(64, (3, 3), activation='relu', padding='same')(u6)
-    c6 = Conv2D(64, (3, 3), activation='relu', padding='same')(c6)
+    u_6 = Conv2DTranspose(64, (2, 2), strides=(2, 2), padding='same')(conv_5)
+    u_6 = concatenate([u_6, conv_4])
+    conv_6 = Conv2D(64, (3, 3), activation='relu', padding='same')(u_6)
+    conv_6 = Conv2D(64, (3, 3), activation='relu', padding='same')(conv_6)
 
-    u7 = Conv2DTranspose(32, (2, 2), strides=(2, 2), padding='same')(c6)
-    u7 = concatenate([u7, c3])
-    c7 = Conv2D(32, (3, 3), activation='relu', padding='same')(u7)
-    c7 = Conv2D(32, (3, 3), activation='relu', padding='same')(c7)
+    u_7 = Conv2DTranspose(32, (2, 2), strides=(2, 2), padding='same')(conv_6)
+    u_7 = concatenate([u_7, conv_3])
+    conv_7 = Conv2D(32, (3, 3), activation='relu', padding='same')(u_7)
+    conv_7 = Conv2D(32, (3, 3), activation='relu', padding='same')(conv_7)
 
-    u8 = Conv2DTranspose(16, (2, 2), strides=(2, 2), padding='same')(c7)
-    u8 = concatenate([u8, c2])
-    c8 = Conv2D(16, (3, 3), activation='relu', padding='same')(u8)
-    c8 = Conv2D(16, (3, 3), activation='relu', padding='same')(c8)
+    u_8 = Conv2DTranspose(16, (2, 2), strides=(2, 2), padding='same')(conv_7)
+    u_8 = concatenate([u_8, conv_2])
+    conv_8 = Conv2D(16, (3, 3), activation='relu', padding='same')(u_8)
+    conv_8 = Conv2D(16, (3, 3), activation='relu', padding='same')(conv_8)
 
-    u9 = Conv2DTranspose(8, (2, 2), strides=(2, 2), padding='same')(c8)
-    u9 = concatenate([u9, c1], axis=3)
-    c9 = Conv2D(8, (3, 3), activation='relu', padding='same')(u9)
-    c9 = Conv2D(8, (3, 3), activation='relu', padding='same')(c9)
+    u_9 = Conv2DTranspose(8, (2, 2), strides=(2, 2), padding='same')(conv_8)
+    u_9 = concatenate([u_9, conv_1], axis=3)
+    conv_9 = Conv2D(8, (3, 3), activation='relu', padding='same')(u_9)
+    conv_9 = Conv2D(8, (3, 3), activation='relu', padding='same')(conv_9)
 
-    outputs = Conv2D(1, (1, 1), activation='sigmoid')(c9)
+    outputs = Conv2D(1, (1, 1), activation='sigmoid')(conv_9)
 
     model = Model(inputs=[inputs], outputs=[outputs])
-    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=[dsb_metric])
+    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=[keras_dsb_metric])
     model.summary()
+    return model
+
+
+if __name__ == '__main__':
+    assert build_u_net_model()

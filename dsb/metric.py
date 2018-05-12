@@ -5,6 +5,8 @@
 import glob
 
 import numpy as np
+import tensorflow as tf
+from keras import backend as K
 
 import cv2
 from dsb.conf import TEST_MASK_PATH
@@ -58,6 +60,21 @@ def dsb_metric(pred_masks, true_masks, thresholds=THRESHOLDS):
     jacard_sim_coeff = _custom_precision(labels_matrix, total_true_masks, total_pred_masks)
     assert jacard_sim_coeff.shape == (1, len(thresholds))  #  (1, Number of thresholds)
     return jacard_sim_coeff.mean()
+
+
+def keras_dsb_metric(y_true, y_pred, thresholds=THRESHOLDS):
+    """ A specific IoU (intersection over union) for the dsb competition that works with Keras.
+    """
+    # TODO: Make this more generic (no tf)
+    prec = []
+    for threshold in thresholds:
+        y_pred_ = tf.to_int32(y_pred > threshold)
+        score, up_opt = tf.metrics.mean_iou(y_true, y_pred_, 2)
+        K.get_session().run(tf.local_variables_initializer())
+        with tf.control_dependencies([up_opt]):
+            score = tf.identity(score)
+        prec.append(score)
+    return K.mean(K.stack(prec), axis=0)
 
 
 def _test_dsb_metric():
