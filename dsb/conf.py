@@ -5,6 +5,7 @@ import os
 
 import pandas as pd
 
+# TODO: Use Pathlib instead of os.path.
 BASE_PATH = os.path.dirname(os.path.realpath(__file__))
 IMAGES_PATH = os.path.join(BASE_PATH, 'data/**/images/*.png')
 TRAIN_LABELS_PATH = os.path.join(BASE_PATH, 'data/stage1_train_labels.csv')

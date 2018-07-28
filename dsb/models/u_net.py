@@ -65,9 +65,4 @@ def build_u_net_model():
 
     model = Model(inputs=[inputs], outputs=[outputs])
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=[keras_dsb_metric])
-    model.summary()
     return model
-
-
-if __name__ == '__main__':
-    assert build_u_net_model()

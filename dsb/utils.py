@@ -7,6 +7,9 @@ import numpy as np
 import cv2
 from dsb.conf import IMG_CHANNELS, IMG_HEIGHT, IMG_WIDTH
 
+# TODO: Later, check how to do some of the processing steps directly with Keras using:
+# https://keras.io/preprocessing/image/
+
 
 def combine_masks(masks_paths):
     """ Combine the different masks of a single image into one mask
@@ -17,9 +20,6 @@ def combine_masks(masks_paths):
         masks.append(mask)
     return np.maximum.reduce(masks)
 
-
-# TODO: Check how to do it directly with Keras:
-# https://keras.io/preprocessing/image/
 
 def preprocess_image(img):
     """ Preprocess the image.
