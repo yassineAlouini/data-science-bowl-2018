@@ -6,7 +6,6 @@ import glob
 
 import numpy as np
 import tensorflow as tf
-from keras import backend as K
 
 import cv2
 from dsb.conf import TEST_MASK_PATH
@@ -34,6 +33,9 @@ def _iou(img_1, img_2):
     images. Notice that the pixels are transfored into binary values: either bigger than 0 (image) or not
     (background). The 0 value is the code for black color.
     """
+    # int casting so that numpy bitwise_and works.
+    img_1 = np.uint64(img_1)
+    img_2 = np.uint64(img_2)
     intersection = ((img_1 & img_2) > 0).sum()
     union = ((img_2 | img_2) > 0).sum()
     return intersection / union
@@ -48,7 +50,7 @@ def _labeling(pred_mask, true_mask, thresholds):
     return (computed_iou > thresholds).astype(int)
 
 
-def dsb_metric(pred_masks, true_masks, thresholds=THRESHOLDS):
+def dsb_metric(true_masks, pred_masks, thresholds=THRESHOLDS):
     """ A specific IoU (intersection over union) for the dsb competition
     """
     total_true_masks = len(pred_masks)
@@ -62,19 +64,10 @@ def dsb_metric(pred_masks, true_masks, thresholds=THRESHOLDS):
     return jacard_sim_coeff.mean()
 
 
-def keras_dsb_metric(y_true, y_pred, thresholds=THRESHOLDS):
-    """ A specific IoU (intersection over union) for the dsb competition that works with Keras.
+def keras_dsb_metric(true_masks, pred_masks):
+    """ TF wrapper for the dsb_metric so that it works with Keras.
     """
-    # TODO: Make this more generic (no tf)
-    prec = []
-    for threshold in thresholds:
-        y_pred_ = tf.to_int32(y_pred > threshold)
-        score, up_opt = tf.metrics.mean_iou(y_true, y_pred_, 2)
-        K.get_session().run(tf.local_variables_initializer())
-        with tf.control_dependencies([up_opt]):
-            score = tf.identity(score)
-        prec.append(score)
-    return K.mean(K.stack(prec), axis=0)
+    return tf.py_func(dsb_metric, [true_masks, pred_masks], tf.float64)
 
 
 def _test_dsb_metric():

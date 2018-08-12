@@ -3,11 +3,10 @@ import os
 
 import matplotlib.pylab as plt
 import numpy as np
-from keras.callbacks import TensorBoard
 from tqdm import tqdm
 
 import cv2
-from dsb.conf import IMG_CHANNELS, IMG_HEIGHT, IMG_WIDTH, TB_LOG_DIR
+from dsb.conf import IMG_CHANNELS, IMG_HEIGHT, IMG_WIDTH
 
 # TODO: Later, check how to do some of the processing steps directly with Keras using:
 # https://keras.io/preprocessing/image/
@@ -19,19 +18,21 @@ def combine_masks(masks_paths, image_name):
     masks = []
     for mask_path in tqdm(masks_paths, desc='Masks for {} procesing'.format(image_name), leave=False):
         # Transform into string so that cv2 can read the file.
-        mask = preprocess_image(str(mask_path))
+        # Only 1 channel for the masks.
+        mask = preprocess_image(str(mask_path), channels=1)
+        # mask = np.expand_dims(mask, axis=-1)
         masks.append(mask)
     if masks:
         return np.maximum.reduce(masks)
     return None
 
 
-def preprocess_image(img_path):
+def preprocess_image(img_path, channels=IMG_CHANNELS):
     """ Preprocess an image given its path.
     """
     img = cv2.imread(img_path)
     img = img[:, :, :IMG_CHANNELS]
-    img = np.resize(img, (IMG_HEIGHT, IMG_WIDTH))
+    img = np.resize(img, (IMG_HEIGHT, IMG_WIDTH, channels))
     return img
 
 
@@ -52,7 +53,3 @@ def plot_one_image(img_path):
     axes[1].set_title('Mask')
     fig.tight_layout(rect=[0, 0.03, 1, 0.97])
     return fig
-
-
-TB_CALLBACK = TensorBoard(log_dir=TB_LOG_DIR, histogram_freq=0,
-                          write_graph=True, write_images=True)

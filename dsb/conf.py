@@ -4,6 +4,7 @@
 import os
 
 import pandas as pd
+from keras.callbacks import TensorBoard
 
 # TODO: Use Pathlib instead of os.path.
 BASE_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -19,5 +20,8 @@ TEST_MASK_PATH = os.path.join(
 IMG_CHANNELS = 3
 IMG_WIDTH = 256
 IMG_HEIGHT = 256
-# TODO: Find a better place to log tensorboard logs.
-TB_LOG_DIR = "/tmp/"
+# Make sure that the TB logs are logged somewhere where you have the rights.
+TB_LOG_DIR = os.path.join(BASE_PATH, 'tb_logs')
+TB_CALLBACK = TensorBoard(log_dir=TB_LOG_DIR, histogram_freq=0,
+                          write_graph=True, write_images=True)
+EPOCHS = 10

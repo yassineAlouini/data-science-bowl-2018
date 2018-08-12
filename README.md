@@ -28,6 +28,7 @@ Then, run:
 3. Postprocess the predictions
 
 
+
 ## Get the data
 
 
@@ -40,6 +41,9 @@ To get the data, run:
 
 You will need to accept the competition conditions and create an API key first.
 
+## Running TensorBoard
+
+tensorboard --logdir=/path/to/tb_logs
 
 ## Sources and useful links
 
