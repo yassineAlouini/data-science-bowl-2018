@@ -7,7 +7,7 @@ import pandas as pd
 
 # TODO: Use Pathlib instead of os.path.
 BASE_PATH = os.path.dirname(os.path.realpath(__file__))
-IMAGES_PATH = os.path.join(BASE_PATH, 'data/**/images/*.png')
+IMAGES_BASE_PATH = os.path.join(BASE_PATH, 'data')
 TRAIN_LABELS_PATH = os.path.join(BASE_PATH, 'data/stage1_train_labels.csv')
 ALL_IMAGE_IDS = set(next(os.walk(os.path.join(BASE_PATH, 'data')))[1])
 TRAIN_IMAGE_IDS = set(pd.read_csv(TRAIN_LABELS_PATH).ImageId.unique())
@@ -19,3 +19,5 @@ TEST_MASK_PATH = os.path.join(
 IMG_CHANNELS = 3
 IMG_WIDTH = 256
 IMG_HEIGHT = 256
+# TODO: Find a better place to log tensorboard logs.
+TB_LOG_DIR = "/tmp/"

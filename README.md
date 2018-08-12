@@ -21,6 +21,13 @@ Then, run:
 
 `python setup.py develop`
 
+## Workflow
+
+1. Get and process the data
+2. Train the model
+3. Postprocess the predictions
+
+
 ## Get the data
 
 
@@ -32,3 +39,10 @@ To get the data, run:
 `kaggle competitions download -c data-science-bowl-2018`
 
 You will need to accept the competition conditions and create an API key first.
+
+
+## Sources and useful links
+
+* U-net Kaggle kernel: https://www.kaggle.com/keegil/keras-u-net-starter-lb-0-277
+* U-net paper: https://arxiv.org/abs/1505.04597
+* Upsampling basics: https://www.cs.toronto.edu/~guerzhoy/320/lec/upsampling.pdf
