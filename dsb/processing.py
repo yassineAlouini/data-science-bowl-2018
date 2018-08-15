@@ -5,10 +5,12 @@ from pathlib import Path
 import numpy as np
 from tqdm import tqdm
 
-from dsb.conf import IMAGES_BASE_PATH, TRAIN_IMAGE_IDS
+from dsb.conf import IMAGES_BASE_PATH, TEST_IMAGE_IDS, TRAIN_IMAGE_IDS
 from dsb.utils import combine_masks, preprocess_image
 
 # TODO: Processing pipeline for the images and masks.
+
+# TODO: Refactor the train and test processing pipelines.
 
 
 def process_train_data(debug):
@@ -37,3 +39,24 @@ def process_train_data(debug):
     images = np.stack(images, axis=0)
     masks = np.stack(masks, axis=0)
     return images, masks
+
+
+def process_test_data(debug):
+    # TODO: Add some documentation
+    images = []
+    # TODO: Improve this.
+    if debug:
+        # Useful while implementing the pipeline.
+        ids = set([list(TEST_IMAGE_IDS)[0]])
+    else:
+        ids = TEST_IMAGE_IDS
+    # Get the raw images
+    for img_id in tqdm(ids, desc="Image processing"):
+        # Transform the pathlib path into a string so that cv2 works.
+        img_path = str(Path(IMAGES_BASE_PATH) / img_id / 'images' / (img_id + '.png'))
+        img = preprocess_image(img_path)
+        images.append(img)
+    # Stack and add a new dimension at the first dimension so that the channels dim is the last one.
+    # This is done so that it works wit TF convention (channels last).
+    images = np.stack(images, axis=0)
+    return images

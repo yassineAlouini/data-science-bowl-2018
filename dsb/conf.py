@@ -4,7 +4,7 @@
 import os
 
 import pandas as pd
-from keras.callbacks import TensorBoard
+from keras.callbacks import EarlyStopping, ModelCheckpoint, TensorBoard
 
 # TODO: Use Pathlib instead of os.path.
 BASE_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -22,6 +22,10 @@ IMG_WIDTH = 256
 IMG_HEIGHT = 256
 # Make sure that the TB logs are logged somewhere where you have the rights.
 TB_LOG_DIR = os.path.join(BASE_PATH, 'tb_logs')
+MODEL_CHECKPOINT_PATH = os.path.join(BASE_PATH, 'model_dsb.h5')
 TB_CALLBACK = TensorBoard(log_dir=TB_LOG_DIR, histogram_freq=0,
                           write_graph=True, write_images=True)
+EARLY_STOPPING_CALLBACK = EarlyStopping(patience=5, verbose=1)
+MODEL_CHECKPOINT_CALLBACK = ModelCheckpoint(MODEL_CHECKPOINT_PATH, verbose=1, save_best_only=True)
 EPOCHS = 10
+BATCH_SIZE = 8

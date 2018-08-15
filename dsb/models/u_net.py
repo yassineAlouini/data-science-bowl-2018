@@ -64,5 +64,6 @@ def build_u_net_model():
     outputs = Conv2D(1, (1, 1), activation='sigmoid')(conv_9)
 
     model = Model(inputs=[inputs], outputs=[outputs])
+    # TODO: Try other optimizers with different hyperparameters.
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=[keras_dsb_metric])
     return model
