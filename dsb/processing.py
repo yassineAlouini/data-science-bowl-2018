@@ -20,7 +20,7 @@ def process_train_data(debug):
     # TODO: Improve this.
     if debug:
         # Useful while implementing the pipeline.
-        ids = set([list(TRAIN_IMAGE_IDS)[0]])
+        ids = set(list(TRAIN_IMAGE_IDS)[0:10])
     else:
         ids = TRAIN_IMAGE_IDS
     # Get the raw images
@@ -44,10 +44,12 @@ def process_train_data(debug):
 def process_test_data(debug):
     # TODO: Add some documentation
     images = []
+    # Notice that I store the tests original image sizes for later upsampling during submission step.
+    sizes = []
     # TODO: Improve this.
     if debug:
         # Useful while implementing the pipeline.
-        ids = set([list(TEST_IMAGE_IDS)[0]])
+        ids = set(list(TEST_IMAGE_IDS)[0:10])
     else:
         ids = TEST_IMAGE_IDS
     # Get the raw images
@@ -56,7 +58,9 @@ def process_test_data(debug):
         img_path = str(Path(IMAGES_BASE_PATH) / img_id / 'images' / (img_id + '.png'))
         img = preprocess_image(img_path)
         images.append(img)
+        # Append the original image shape
+        sizes.append([img.shape[0], img.shape[1]])
     # Stack and add a new dimension at the first dimension so that the channels dim is the last one.
     # This is done so that it works wit TF convention (channels last).
     images = np.stack(images, axis=0)
-    return images
+    return images, sizes

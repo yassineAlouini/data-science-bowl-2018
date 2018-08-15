@@ -43,7 +43,16 @@ You will need to accept the competition conditions and create an API key first.
 
 ## Running TensorBoard
 
+To run TensorBoard (a great visualization tool),
+
 tensorboard --logdir=/path/to/tb_logs
+
+## Tips
+
+* It is better to use skimage instead of numpy for reading and processing images.
+* It is even better to use Keras built-in image processing capabilities.
+* Log the various image sizes when debugging your data processing pipeline.
+* Use only one image when debugging your data pipeline (so that to avoid loading all the data multiple times).
 
 ## Sources and useful links
 

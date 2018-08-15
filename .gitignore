@@ -4,3 +4,5 @@ data
 __pycache__
 # Where tensorboard will be running
 tb_logs
+# Don't commit models
+*.h5

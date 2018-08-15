@@ -9,14 +9,16 @@ from keras.layers import (Conv2D, Conv2DTranspose, Input, Lambda, MaxPooling2D,
                           concatenate)
 from keras.models import Model
 
-from dsb.conf import IMG_CHANNELS, IMG_HEIGHT, IMG_WIDTH
+from dsb.conf import IMAGE_DATA_FORMAT, IMG_CHANNELS, IMG_HEIGHT, IMG_WIDTH
 from dsb.metric import keras_dsb_metric
 
-K.set_image_data_format('channels_last')  # TF dimension ordering in this code
+# TODO: Is this necssary?
+if K.image_data_format() != IMAGE_DATA_FORMAT:
+    K.set_image_data_format(IMAGE_DATA_FORMAT)
 
 
 def build_u_net_model():
-    """ Unet model
+    """ Unet model implementation in Keras.
     """
     # TODO: Refactor some of the conv_x layers into a function.
     inputs = Input((IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS))
@@ -65,5 +67,6 @@ def build_u_net_model():
 
     model = Model(inputs=[inputs], outputs=[outputs])
     # TODO: Try other optimizers with different hyperparameters.
-    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=[keras_dsb_metric])
+    # TODO: Try this optimizer: Adam(1e-4, decay=1e-6)
+    model.compile(optimizer='adam', loss="binary_crossentropy", metrics=[keras_dsb_metric])
     return model

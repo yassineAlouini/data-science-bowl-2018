@@ -20,12 +20,18 @@ TEST_MASK_PATH = os.path.join(
 IMG_CHANNELS = 3
 IMG_WIDTH = 256
 IMG_HEIGHT = 256
+IMAGE_DATA_FORMAT = "channels_last"
+# TODO: Use Pathlib instead of os.path.
 # Make sure that the TB logs are logged somewhere where you have the rights.
 TB_LOG_DIR = os.path.join(BASE_PATH, 'tb_logs')
-MODEL_CHECKPOINT_PATH = os.path.join(BASE_PATH, 'model_dsb.h5')
+MODEL_CHECKPOINT_PATH = os.path.join(BASE_PATH, 'models', 'model_dsb.h5')
 TB_CALLBACK = TensorBoard(log_dir=TB_LOG_DIR, histogram_freq=0,
                           write_graph=True, write_images=True)
-EARLY_STOPPING_CALLBACK = EarlyStopping(patience=5, verbose=1)
+# By default monitors "val_loss" metric (thus need a validation set while fitting the model).
+EARLY_STOPPING_CALLBACK = EarlyStopping(patience=20, verbose=1)
 MODEL_CHECKPOINT_CALLBACK = ModelCheckpoint(MODEL_CHECKPOINT_PATH, verbose=1, save_best_only=True)
-EPOCHS = 10
+# Some of the model hyperparameters. Tune later.
+EPOCHS = 1000
 BATCH_SIZE = 8
+# Validation size * VALIDATION_SPLIT + Train size * (1 - VALIDATION_SPLIT) = all train size.
+VALIDATION_SPLIT = 0.1
