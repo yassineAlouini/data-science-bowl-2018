@@ -5,16 +5,17 @@ https://github.com/jocicmarko/ultrasound-nerve-segmentation/blob/master/train.py
 from __future__ import print_function
 
 from keras import backend as K
-from keras.layers import (Conv2D, Conv2DTranspose, Input, Lambda, MaxPooling2D,
+from keras.layers import (Conv2D, Conv2DTranspose, Input, MaxPooling2D,
                           concatenate)
 from keras.models import Model
 
 from dsb.conf import IMAGE_DATA_FORMAT, IMG_CHANNELS, IMG_HEIGHT, IMG_WIDTH
 from dsb.metric import keras_dsb_metric
 
-# TODO: Is this necssary?
 if K.image_data_format() != IMAGE_DATA_FORMAT:
     K.set_image_data_format(IMAGE_DATA_FORMAT)
+
+# TODO: Try using other types of padding (for example "valid")
 
 
 def build_u_net_model():
@@ -22,9 +23,7 @@ def build_u_net_model():
     """
     # TODO: Refactor some of the conv_x layers into a function.
     inputs = Input((IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS))
-    scale = Lambda(lambda x: x / 255)(inputs)
-
-    conv_1 = Conv2D(8, (3, 3), activation='relu', padding='same')(scale)
+    conv_1 = Conv2D(8, (3, 3), activation='relu', padding='same')(inputs)
     conv_1 = Conv2D(8, (3, 3), activation='relu', padding='same')(conv_1)
     pooling_1 = MaxPooling2D((2, 2))(conv_1)
 

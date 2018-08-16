@@ -22,6 +22,8 @@ def combine_masks(masks_paths, image_name):
         mask = preprocess_image(str(mask_path), is_mask=True)
         # Add the missing third axis for the mask (the channel dim)
         mask = np.expand_dims(mask, axis=-1)
+        # Cast to integer (0 or 1 values for the mask)
+        mask = mask.astype(int)
         masks.append(mask)
     return np.maximum.reduce(masks)
 
@@ -33,10 +35,14 @@ def preprocess_image(img_path, is_mask=False):
     if not is_mask:
         img = img[:, :, :IMG_CHANNELS]
     # TODO: What about aliasing effects when downsampling?
-    return resize(img, (IMG_HEIGHT, IMG_WIDTH), mode='constant', preserve_range=True, anti_aliasing=True)
-
+    img = resize(img, (IMG_HEIGHT, IMG_WIDTH), mode='constant', preserve_range=True, anti_aliasing=True)
+    # Scale to the range [0, 1]
+    img /= 255.0
+    return img
 
 # TODO: Update this function (make it work again).
+
+
 def plot_one_image(img_path):
     """Plot one image with its corresponding masks.
     """

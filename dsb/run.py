@@ -5,8 +5,8 @@ from keras.models import load_model
 from skimage.transform import resize
 
 from dsb.conf import (BATCH_SIZE, EARLY_STOPPING_CALLBACK, EPOCHS,
-                      MODEL_CHECKPOINT_CALLBACK, TB_CALLBACK, TEST_IMAGE_IDS,
-                      VALIDATION_SPLIT)
+                      MODEL_CHECKPOINT_CALLBACK, MODEL_CHECKPOINT_PATH,
+                      TB_CALLBACK, TEST_IMAGE_IDS, VALIDATION_SPLIT)
 from dsb.metric import keras_dsb_metric
 from dsb.models.u_net import build_u_net_model
 from dsb.postprocessing import prob_to_rles
@@ -20,8 +20,6 @@ def ml_pipeline(debug=True):
     """ Get and process the raw images, build a U-Net model, then train it.
     """
     train_images, train_masks = process_train_data(debug)
-    # Scale train_masks to be in the range [0, 1] (otherwise, loss is <0).
-    train_masks /= 255.
     assert len(train_images) == len(train_masks), "Something wrong happened!"
     model = build_u_net_model()
     # TODO: Is the shuffle parameter set to True by default?
@@ -32,22 +30,20 @@ def ml_pipeline(debug=True):
     return model
 
 
-def preare_submission(model_path, output_path, debug=True):
+def preare_submission(model, output_path, debug=True):
     """ Use a trained model and test data to prepare the submission file.
     """
 
-    model = load_model(model_path, custom_objects={'keras_dsb_metric': keras_dsb_metric})
     test_images, test_sizes = process_test_data(debug)
     preds_test = model.predict(test_images, verbose=1)
-    preds_test *= 255.
 
-    # TODO: Finish adapting this part.
     # Create list of upsampled test masks
     preds_test_upsampled = []
     # TODO: Is it possible to vectorize this loop?
     for i in range(len(preds_test)):
         original_img_shape = test_sizes[i]
-        upsampled_img = resize(np.squeeze(preds_test[i]), original_img_shape, mode='constant', preserve_range=True)
+        upsampled_img = resize(np.squeeze(preds_test[i]), original_img_shape,
+                               mode='constant', preserve_range=True, anti_aliasing=True)
         preds_test_upsampled.append(upsampled_img)
 
     new_test_ids = []
@@ -64,16 +60,24 @@ def preare_submission(model_path, output_path, debug=True):
     (pd.DataFrame({"ImageId": new_test_ids, "EncodedPixels": encoded_pixels_s})
         .to_csv(output_path, index=False))
 
-    # Use the kaggle-api to submit.
+    # TODO: Use the kaggle-API tool to submit.
 
 
 @click.command()
 @click.option('--debug', type=bool,
               default=True, help='Whether to run the pipeline in debug mode or not. Defaults to True.')
-def main(debug):
-    model = ml_pipeline(debug)
-    # TODO: Use logger instead of print
-    print(model.summary())
+@click.option('--train', type=bool,
+              default=False, help='Whether to train a model or load one. Defaults to False.')
+@click.option('--output_path', type=str, help='Where to store the submission file.')
+def main(debug, train, output_path):
+    if train:
+        model = ml_pipeline(debug)
+        # TODO: Use logger instead of print
+        print(model.summary())
+    else:
+        model = load_model(MODEL_CHECKPOINT_PATH, custom_objects={'keras_dsb_metric': keras_dsb_metric})
+    # TODO: Add creation date for the submission file.
+    preare_submission(model, output_path, debug)
 
 
 if __name__ == "__main__":

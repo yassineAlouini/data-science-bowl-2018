@@ -71,8 +71,6 @@ def dsb_metric(true_masks, pred_masks, thresholds=THRESHOLDS):
 def keras_dsb_metric(true_masks, pred_masks):
     """ TF wrapper for the dsb_metric so that it works with Keras.
     """
-    # TODO: Could this be removed?
-    pred_masks = pred_masks * 255.
     return tf.py_func(dsb_metric, [true_masks, pred_masks], tf.float64)
 
 
@@ -102,7 +100,6 @@ def dice_coef(y_true, y_pred, smooth=1):
 
 def dice_p_bce_loss(in_gt, in_pred):
     # TODO: Add some documentation
-    # TODO: Could this be removed?
     return 1e-3 * binary_crossentropy(in_gt, in_pred) - dice_coef(in_gt, in_pred)
 
 

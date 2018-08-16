@@ -2,6 +2,7 @@
 
 # TODO: Finish this.
 import numpy as np
+from skimage.morphology import label
 
 
 def label_mask(mask_img, border_img, seed_ths, threshold, seed_size=8, obj_size=10):
@@ -41,6 +42,7 @@ def rle_encoding(x):
 
 
 def prob_to_rles(x, cutoff=0.5):
+    # TODO: Add some documentation
     lab_img = label(x > cutoff)
     for i in range(1, lab_img.max() + 1):
         yield rle_encoding(lab_img == i)
